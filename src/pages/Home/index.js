@@ -2,7 +2,7 @@ import React from 'react';
 import Directory from '../../components/Directory';
 import './styles.scss'
 
-const Homepage = props => {
+const Home = props => {
   return (
     <section className="homepage">
       <Directory />
@@ -10,4 +10,4 @@ const Homepage = props => {
   );
 };
 
-export default Homepage;
+export default Home;
