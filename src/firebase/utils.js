@@ -2,7 +2,6 @@ import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
 import { firebaseConfig } from './config';
-import { useRef } from 'react';
 
 firebase.initializeApp(firebaseConfig);
 
