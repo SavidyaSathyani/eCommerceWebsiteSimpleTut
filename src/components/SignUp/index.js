@@ -1,138 +1,117 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import './styles.scss';
-import { auth, handleUserProfile } from '../../firebase/utils';
+import { signUpUser, resetAllAuthForms } from '../../redux/User/user.actions';
 import FormInput from '../forms/FormInput'
 import Button from '../forms/Button';
 import AuthWrapper from '../AuthWrapper';
 
-const initialState = {
-  displayName: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-  errors: [],
-};
+const mapState = ({ user }) => ({
+  signUpErrors: user.signUpErrors,
+  signUpSuccess: user.signUpSuccess,
+});
 
-class SignUp extends Component {
-  constructor(props) {
-    super(props);
+const SignUp = props => {
+  const {
+    signUpErrors,
+    signUpSuccess,
+  } = useSelector(mapState);
+  const dispatch = useDispatch();
+  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [errors, setErrors] = useState([]);
 
-    this.state = {
-      ...initialState
-    };
+  useEffect(() => {
+    if (signUpSuccess) {
+      resetForm();
+      dispatch(resetAllAuthForms());
+      props.history.push('/');
+    }
+    // eslint-disable-next-line 
+  }, [signUpSuccess]);
 
-    this.handleChange = this.handleChange.bind(this);
-  }
+  useEffect(() => {
+    if (Array.isArray(signUpErrors) && signUpErrors.length > 0) {
+      setErrors(signUpErrors);
+    }
 
-  handleChange(event) {
-    const {
-      name,
-      value,
-    } = event.target;
+  }, [signUpErrors]);
 
-    this.setState({
-      [name]: value
-    });
-  }
+  const resetForm = () => {
+    setDisplayName('');
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+    setErrors([]);
+  };
 
-  handleSubmit = async event => {
+  const handleSubmit = event => {
     event.preventDefault();
-    const {
+    dispatch(signUpUser({
       displayName,
       email,
       password,
       confirmPassword,
-    } = this.state;
+    }));
+  };
 
-    if (password !== confirmPassword) {
-      const err = ['Password don\'t match'];
-      this.setState({
-        errors: err
-      });
-      return;
-    }
+  const configAuthWarapper = {
+    headline: 'Registration',
+  };
 
-    try {
-
-      const {
-        user,
-      } = await auth.createUserWithEmailAndPassword(email, password);
-
-      await handleUserProfile(user, { displayName });
-
-      this.setState({
-        ...initialState
-      });
-
-    } catch (err) {
-      // console.log(err);
-    }
-  }
-
-  render() {
-    const {
-      displayName,
-      email,
-      password,
-      confirmPassword,
-      errors,
-    } = this.state;
-
-    const configAuthWarapper = {
-      headline: 'Registration',
-    };
-
-    return (
-      <AuthWrapper {...configAuthWarapper}>
-        <div className="formWrap">
-          {errors.length > 0 && (
-            <ul>
-              {errors.map((err, index) => {
-                return (
-                  <li key={index}>
-                    {err}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-          <form onSubmit={this.handleSubmit}>
-            <FormInput
-              type="text"
-              name="displayName"
-              value={displayName}
-              placeholder="Full Name"
-              onChange={this.handleChange}
-            />
-            <FormInput
-              type="email"
-              name="email"
-              value={email}
-              placeholder="Email"
-              onChange={this.handleChange}
-            />
-            <FormInput
-              type="password"
-              name="password"
-              value={password}
-              placeholder="Password"
-              onChange={this.handleChange}
-            />
-            <FormInput
-              type="password"
-              name="confirmPassword"
-              value={confirmPassword}
-              placeholder="Confirm Password"
-              onChange={this.handleChange}
-            />
-            <Button type="submit">
-              Register
-              </Button>
-          </form>
-        </div>
-      </AuthWrapper>
-    );
-  }
+  return (
+    <AuthWrapper {...configAuthWarapper}>
+      <div className="formWrap">
+        {errors.length > 0 && (
+          <ul>
+            {errors.map((err, index) => {
+              return (
+                <li key={index}>
+                  {err}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        <form onSubmit={handleSubmit}>
+          <FormInput
+            type="text"
+            name="displayName"
+            value={displayName}
+            placeholder="Full Name"
+            handleChange={e => setDisplayName(e.target.value)}
+          />
+          <FormInput
+            type="email"
+            name="email"
+            value={email}
+            placeholder="Email"
+            handleChange={e => setEmail(e.target.value)}
+          />
+          <FormInput
+            type="password"
+            name="password"
+            value={password}
+            placeholder="Password"
+            handleChange={e => setPassword(e.target.value)}
+          />
+          <FormInput
+            type="password"
+            name="confirmPassword"
+            value={confirmPassword}
+            placeholder="Confirm Password"
+            handleChange={e => setConfirmPassword(e.target.value)}
+          />
+          <Button type="submit">
+            Register
+          </Button>
+        </form>
+      </div>
+    </AuthWrapper>
+  );
 };
 
-export default SignUp;
+export default withRouter(SignUp);
