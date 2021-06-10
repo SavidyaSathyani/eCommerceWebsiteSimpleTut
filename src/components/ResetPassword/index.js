@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { withRouter } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux'
 import './styles.scss';
-import { resetPassword, resetAllAuthForms } from '../../redux/User/user.actions';
+import { passwordResetStart, resetUserState } from '../../redux/User/user.actions';
 import FormInput from '../forms/FormInput'
 import Button from '../forms/Button';
 import AuthWrapper from '../AuthWrapper';
 
 const mapState = ({ user }) => ({
-  passwordResetSuccess: user.passwordResetSuccess,
-  passwordResetErrors: user.passwordResetErrors,
+  passwordResetSuccess: user.resetPasswordSuccsess,
+  passwordResetErrors: user.userErrors,
 });
 
 const ResetPassword = props => {
@@ -18,6 +18,7 @@ const ResetPassword = props => {
     passwordResetSuccess
   } = useSelector(mapState);
   const dispatch = useDispatch();
+  const history = useHistory();
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState([]);
 
@@ -29,15 +30,16 @@ const ResetPassword = props => {
 
   useEffect(() => {
     if (passwordResetSuccess) {
-      dispatch(resetAllAuthForms());
-      props.history.push('/login');
+      dispatch(resetUserState());
+      history.push('/login');
     }
-    // eslint-disable-next-line 
+
+    // eslint-disable-next-line
   }, [passwordResetSuccess]);
 
   const handleSubmit = event => {
     event.preventDefault();
-    dispatch(resetPassword({ email }));
+    dispatch(passwordResetStart({ email }));
   };
 
   const configAuthWarapper = {
@@ -75,4 +77,4 @@ const ResetPassword = props => {
   );
 };
 
-export default withRouter(ResetPassword);
+export default ResetPassword;

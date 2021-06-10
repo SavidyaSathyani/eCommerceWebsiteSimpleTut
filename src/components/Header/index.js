@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import './styles.scss';
-import { signOut } from '../../redux/User/user.actions';
+import { signOutUserStart } from '../../redux/User/user.actions';
 import { Link } from 'react-router-dom';
 
 // assets
@@ -16,7 +16,7 @@ const Header = props => {
   const { currentUser } = useSelector(mapState);
 
   const handleSignOut = () => {
-    dispatch(signOut());
+    dispatch(signOutUserStart());
   };
 
   return (
