@@ -11,7 +11,7 @@ export const firestore = firebase.firestore();
 export const GoogleProvider = new firebase.auth.GoogleAuthProvider();
 GoogleProvider.setCustomParameters({ prompt: 'select_account' });
 
-export const handleUserProfile = async (userAuth, additionalData) => {
+export const handleUserProfile = async ({ userAuth, additionalData }) => {
   if (!userAuth) return;
 
   const {
@@ -41,4 +41,29 @@ export const handleUserProfile = async (userAuth, additionalData) => {
   }
 
   return userRef;
+};
+
+export const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = auth.onAuthStateChanged(userAuth => {
+      unsubscribe();
+      resolve(userAuth);
+    }, reject);
+  });
+};
+
+export const handleResetPasswordAPI = (email) => {
+  return new Promise((resolve, reject) => {
+    const config = {
+      url: 'http://localhost:3000/login',
+    };
+    auth.sendPasswordResetEmail(email, config)
+      .then(() => {
+        resolve();
+      })
+      .catch(() => {
+        const err = ['Email not found. Please try again.'];
+        reject(err);
+      });
+  });
 };
